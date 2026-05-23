@@ -1,121 +1,133 @@
 # StellarMind
 
-StellarMind is a multi-agent marketplace on Stellar testnet where autonomous services discover each other, execute work, and settle payments through x402-protected endpoints.
+[![License: MIT](https://img.shields.io/badge/license-MIT-0f172a.svg)](LICENSE)
+![Node](https://img.shields.io/badge/node-%3E%3D18-0f172a.svg)
+![Stellar](https://img.shields.io/badge/network-Stellar%20Testnet-0f172a.svg)
+![x402](https://img.shields.io/badge/payments-x402-0f172a.svg)
 
-## Problem
-Autonomous services can generate useful output, but production teams still need a safe way to control spend, verify payments, and audit execution in real time.
+Multi-agent AI marketplace on Stellar Testnet with x402-protected premium endpoints, budget guardrails, and on-chain payment verification.
 
-## Solution
-StellarMind combines:
-- x402 paywalled endpoints for metered service access
-- Stellar testnet settlement for verifiable payment proof
-- Orchestrated multi-agent execution with budget enforcement
-- Real-time dashboard visibility through SSE
+## Why This Repo Exists
 
-## What Is Included
-- Orchestrator with task decomposition and budget guardrails
-- Agent registry (research, summary, analysis, code)
-- Premium endpoints protected by `@x402/express`
-- Wallet balances and transaction explorer links in UI
-- CLI demo and automated preflight checks
-- Automated website-only recording and narrated video pipeline
+StellarMind demonstrates a production-style pattern for agent commerce:
 
-## Architecture
-1. Client submits task and budget.
-2. Orchestrator plans subtasks and selects agents.
-3. Calls premium `/api/premium/*` endpoints.
-4. x402 flow handles payment challenge and settlement.
-5. Agent output streams to dashboard with live events.
-6. Transaction hashes are available for explorer verification.
+- agents can call each other through paid APIs
+- payment is enforced by protocol (`x402`), not trust alone
+- spending is controlled with explicit budget policies
+- every paid step can be verified on-chain
 
-## Tech Stack
-- Backend: Node.js, Express
-- Payments: `@x402/core`, `@x402/express`, `@x402/stellar`
-- Chain SDK: `@stellar/stellar-sdk`
-- LLM routing: Anthropic SDK
-- Frontend: Vanilla HTML/CSS/JS + SSE
-- Testnet: Stellar
+## Core Capabilities
+
+- Orchestrator that decomposes tasks and routes work to specialized agents
+- Premium agent endpoints protected by `@x402/express`
+- Automatic payment handling via `@x402/fetch` and Stellar settlement
+- Real-time event stream (SSE) in the web dashboard
+- Demo automation pipeline for recording and narrated video export
+
+## Architecture (High-Level)
+
+```text
+Client Task + Budget
+        |
+        v
+Orchestrator (plan, select agents, enforce spend limits)
+        |
+        v
+/api/premium/* endpoints (x402-protected)
+        |
+        v
+402 challenge -> signed payment -> facilitator verification
+        |
+        v
+Agent execution + streamed updates + tx proof links
+```
 
 ## Quick Start
-### 1) Install
+
+### 1) Clone and install
+
 ```bash
 git clone https://github.com/Flamki/stellarmind.git
 cd stellarmind
 npm install
 ```
 
-### 2) Generate wallets and config
+### 2) Configure environment
+
 ```bash
-npm run setup
+cp .env.example .env
 ```
 
-### 3) Add API key
-In `.env`:
+Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Then either:
+
+- run `npm run setup` to generate testnet wallets automatically, or
+- manually fill wallet fields in `.env`
+
+Add your Anthropic key:
+
 ```env
 ANTHROPIC_API_KEY=sk-ant-your-key
 ```
 
-### 4) Prepare USDC trustlines for x402 settlement
+### 3) Prepare USDC trustlines
+
 ```bash
 npm run setup:usdc
 ```
-Then fund testnet USDC via Circle faucet (Stellar testnet).
 
-### 5) Start app
+### 4) Start the app
+
 ```bash
 npm run dev
 ```
-Open: `http://localhost:3001`
 
-## Verification Commands
-### Preflight (recommended before recording)
-```bash
-npm run preflight
-```
-Checks:
-- server health
-- x402 middleware enabled
-- wallet trustlines and spendable balance
-- model access
-- live payment smoke test
+Open `http://localhost:3001`.
 
-### Demo run
-```bash
-npm run demo
-```
+## Available Commands
 
-## Recording Pipeline
-### Website-only capture
-```bash
-npm run record:video
-```
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start local server |
+| `npm run demo` | Run end-to-end demo flow |
+| `npm run preflight` | Validate readiness (x402, wallets, model, payment path) |
+| `npm run setup` | Generate/fund Stellar testnet wallets |
+| `npm run setup:usdc` | Add USDC trustlines for settlement |
+| `npm run record:video` | Capture website-only demo video |
+| `npm run voiceover` | Generate narration track |
+| `npm run record:narrated` | Full narrated demo render pipeline |
 
-### Generate narration track
-```bash
-npm run voiceover
-```
+## Demo Acceptance Checklist
 
-### Full narrated render
-```bash
-npm run record:narrated
-```
+- `npm run preflight` reaches ready state
+- main run shows live orchestration events
+- at least one transaction hash resolves in Stellar Expert
+- low-budget run demonstrates step skipping
+- final narrated video is exported and reviewed
 
-### Premium narration (optional)
-Set in `.env`:
-```env
-ELEVENLABS_API_KEY=your_key
-ELEVENLABS_VOICE_ID=EXAVITQu4vr4xnSDxMaL
-ELEVENLABS_MODEL_ID=eleven_multilingual_v2
-```
+## Security and Publishing Hygiene
 
-## Demo Checklist (Submission)
-- `npm run preflight` passes
-- Main run shows live orchestration events
-- At least one transaction hash opens successfully in Stellar Expert
-- Budget-limited run shows skipped expensive step(s)
-- Final narrated video exported and reviewed end-to-end
+Before pushing to GitHub:
+
+1. Do not commit `.env` or wallet secrets.
+2. Rotate any key that was ever exposed in terminal logs or screenshots.
+3. Keep only `.env.example` in version control.
+4. Review staged files with `git status` and `git diff --staged`.
+5. Verify no private keys are present in docs, recordings, or commits.
+
+This repo includes:
+
+- strict secret-ignore defaults in `.gitignore`
+- a GitHub Actions secret scan workflow (`.github/workflows/secret-scan.yml`)
+- a dedicated security policy (`SECURITY.md`)
 
 ## Project Structure
+
 ```text
 src/
   agents/
@@ -124,9 +136,12 @@ src/
     services.js
   stellar/
     wallet.js
+  config.js
   server.js
   demo.js
   demo-preflight.js
+  setup-wallets.js
+  setup-usdc.js
   record-demo-video.js
   generate-demo-voiceover.js
   render-narrated-demo.js
@@ -134,5 +149,10 @@ public/
   index.html
 ```
 
+## Contributing
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a PR.
+
 ## License
-MIT
+
+MIT. See [LICENSE](LICENSE).

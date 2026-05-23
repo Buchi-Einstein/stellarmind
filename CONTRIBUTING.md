@@ -44,6 +44,13 @@ npm run demo    # Runs 3 automated tasks with budget enforcement
 npm test        # Same as demo
 ```
 
+### Security Hygiene
+
+- Never commit `.env` or generated wallet secrets.
+- Use placeholders only in `.env.example`.
+- Before every push, run `git diff --staged` and verify no keys are present.
+- If a secret is exposed, rotate it immediately.
+
 ### Environment Setup
 
 ```bash
