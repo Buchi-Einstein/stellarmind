@@ -75,6 +75,13 @@ Add your Anthropic key:
 ANTHROPIC_API_KEY=sk-ant-your-key
 ```
 
+Optional for deployments:
+
+```env
+# Defaults to http://localhost:3001 in local dev
+INTERNAL_BASE_URL=http://server:3001
+```
+
 ### 3) Prepare USDC trustlines
 
 ```bash
@@ -88,6 +95,31 @@ npm run dev
 ```
 
 Open `http://localhost:3001`.
+
+Because `INTERNAL_BASE_URL` defaults to `http://localhost:$PORT`, local demo setup stays one-command simple: `npm run dev`.
+
+## Deployment Notes
+
+The orchestrator uses `INTERNAL_BASE_URL` for its paid internal calls to `/api/premium/*`.
+
+- Local development: leave `INTERNAL_BASE_URL` unset and run `npm run dev`
+- Single container / Docker Compose: set `INTERNAL_BASE_URL=http://<service-name>:3001`
+- Remote or reverse-proxied deployment: set `INTERNAL_BASE_URL` to the server origin the orchestrator can actually reach, for example `https://stellarmind.example.com`
+
+Examples:
+
+```env
+# Local
+PORT=3001
+
+# Docker Compose
+PORT=3001
+INTERNAL_BASE_URL=http://stellarmind:3001
+
+# Remote deployment behind HTTPS
+PORT=3001
+INTERNAL_BASE_URL=https://stellarmind.example.com
+```
 
 ## Available Commands
 
