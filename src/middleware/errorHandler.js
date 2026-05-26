@@ -38,9 +38,15 @@ export function errorHandler(err, req, res, _next) {
     stack: err.stack,
   });
 
+  // In production, mask only 5xx server errors to avoid leaking internals.
+  // 4xx client errors keep their message so API consumers get actionable feedback.
+  const message = isProd && status >= 500
+    ? 'An unexpected error occurred'
+    : (err.message || 'An unexpected error occurred');
+
   const body = {
     code,
-    message: isProd ? 'An unexpected error occurred' : (err.message || 'An unexpected error occurred'),
+    message,
     requestId: req.requestId,
   };
 
