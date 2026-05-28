@@ -128,7 +128,7 @@ function paymentProtocolSummary(x402Count, xlmFallbackCount) {
 }
 
 async function callAgentViaX402(agent, input, broadcastFn) {
-  const baseUrl = `http://localhost:${config.port}`;
+  const baseUrl = config.internalBaseUrl;
   const endpointFn = PREMIUM_ENDPOINT_MAP[agent.id];
 
   if (x402Fetch && endpointFn) {
